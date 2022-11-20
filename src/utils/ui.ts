@@ -1,5 +1,5 @@
-import { Dimensions } from "react-native";
-import { BREAK_POINT, ZOOM_RATIO } from "../types/base";
+import { Dimensions } from 'react-native';
+import { BREAK_POINT, ZOOM_RATIO } from '@/types/base';
 
 export const p2d = (uiElePx: number) => {
   if (uiElePx === 0) return 0;
