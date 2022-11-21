@@ -2,7 +2,7 @@
  * Marquee
  * create by wangsen on 2022-11-19
  */
-import React, { useImperativeHandle, forwardRef } from 'react';
+import React, { useImperativeHandle, forwardRef, useEffect, useState } from 'react';
 import { StyleProp, Text, View, ViewStyle } from 'react-native';
 import useInterval from '@/hooks/useInterval';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -19,39 +19,47 @@ interface IProps {
   data: IData[];
   interval?: number; // 滚动间隔
   duration?: number; // 滚动动画时长
-  scrollDirection?: 'vertical' | 'horizontal'; // 滚动方向
   reverse?: boolean; // 是否反向滚动
+  onIndexChange?: (index: number) => void;
   style?: StyleProp<ViewStyle>;
 }
 
 const BASE_HEIGHT = 20;
 
 export default forwardRef((props: IProps, ref) => {
-  const { data, duration = 1000 } = props;
+  const { data, duration = 1000, reverse = false } = props;
 
   const offsetY = useSharedValue(0);
   const idx = useSharedValue(0);
+  const [interval, setInterval] = useState(3000);
 
   useImperativeHandle(ref, () => ({
+    active: idx,
     activeItem: data[idx.value],
   }));
 
+  const len = data.length;
+
   useInterval(() => {
-    const maxIdx = data.length;
-    if (idx.value >= maxIdx) {
+    if (idx.value > len - 1) {
       idx.value = 0;
-      offsetY.value = 0;
+      offsetY.value = withTiming(0, { duration: 0 });
     } else {
       idx.value += 1;
       offsetY.value = withTiming(idx.value * BASE_HEIGHT, { duration });
     }
-  }, 3000);
+  }, interval);
+
+  useEffect(() => {
+    if (idx.value > len - 1) {
+      setInterval(1000);
+    }
+  }, [idx.value]);
 
   const style = useAnimatedStyle(() => {
     console.log('Running on the UI thread');
     return {
-      opacity: 0.5,
-      transform: [{ translateY: -offsetY.value }],
+      transform: [{ translateY: reverse ? offsetY.value : -offsetY.value }],
     };
   });
 
