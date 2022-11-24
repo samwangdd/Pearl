@@ -10,6 +10,6 @@ export default StyleSheet.create({
   container: {
     width: '100%',
     height: p2d(100),
-    backgroundColor: 'pink',
+    flex: 1,
   },
 });
